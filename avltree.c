@@ -58,6 +58,7 @@ static AVLNode *rotate_left_single(AVLNode *root){
     node->right = root;
     update_height(root);
     update_height(node);
+    printf("[left] - ");
     return node;
 }
 
@@ -68,18 +69,21 @@ static AVLNode *rotate_right_single(AVLNode *root){
     node->left = root;
     update_height(root);
     update_height(node);
+    printf("[right] - ");
     return node;
 }
 
 // LR双旋转，root为失衡结点，情况（2）
 static AVLNode *rotate_left_double(AVLNode *root){
     root->left = rotate_right_single(root->left);
+    printf("{left double} - ");
     return rotate_left_single(root);
 }
 
 // RL双旋转，root为失衡结点，情况（3）
 static AVLNode *rotate_right_double(AVLNode *root){
     root->right = rotate_left_single(root->right);
+    printf("{right double} - ");
     return rotate_right_single(root);
 }
 
@@ -163,38 +167,29 @@ static AVLNode *delete_node(AVLTree *avltree, AVLNode *root, unsigned int id){
             strcpy(root->user.username, node->user.username);
             strcpy(root->user.password, node->user.password);
             root->right = delete_node(avltree, root->right, node->user.id);
-            if(height(root->right) - height(root->left) == 2){
-                if(id > root->left->user.id)
-                    root = rotate_right_single(root);
-                else
-                    root = rotate_right_double(root);
-            }
-            update_height(root);
-            return root;
         }
     }
     else if(root->user.id > id){
         root->left = delete_node(avltree, root->left, id);
-        if(height(root->left) - height(root->right) == 2){
-            if(id < root->left->user.id)
-                root = rotate_left_single(root);
-            else
-                root = rotate_left_double(root);
-        }
-        update_height(root);
-        return root;
     }
     else{
         root->right = delete_node(avltree, root->right, id);
-        if(height(root->right) - height(root->left) == 2){
-            if(id > root->right->user.id)
-                root = rotate_right_single(root);
-            else
-                root = rotate_right_double(root);
-        }
-        update_height(root);
-        return root;
     }
+
+    if(height(root->left) - height(root->right) == 2){
+        if(height(root->left->left) - height(root->left->right) > 0)
+            root = rotate_left_single(root);
+        else
+            root = rotate_left_double(root);
+    }
+    else if(height(root->right) - height(root->left) == 2){
+        if(height(root->right->right) - height(root->right->left) > 0)
+            root = rotate_right_single(root);
+        else
+            root = rotate_right_double(root);
+    }
+    update_height(root);
+    return root;
 }
 
 int avltree_delete_by_id(AVLTree *avltree, unsigned int id){

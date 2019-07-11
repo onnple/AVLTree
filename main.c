@@ -3,8 +3,14 @@
 #include <stdlib.h>
 #include "avltree.h"
 
+static int height(AVLNode *node){
+    if(!node)
+        return -1; // 空树为-1
+    return node->height;
+}
+
 void traverse_tree(AVLNode *node){
-    printf("%d (%d) - ", node->user.id, node->height);
+    printf("(%d) - ", height(node->left) - height(node->right));
 }
 
 void avltree(void){
@@ -68,6 +74,25 @@ void avltree(void){
     avltree_delete_by_id(avltree, 8);
     avltree_traverse(avltree, traverse_tree);
     printf("\n");
+
+    for (int i = 0; i < 2000; ++i) {
+        if(i % 2 == 0)
+            u1.id = i * i / 2;
+        else
+            u1.id = i * i / 3;
+        avltree_add(avltree, &u1);
+    }
+    avltree_traverse(avltree, traverse_tree);
+    printf("\n");
+
+    int id = 0;
+    for (int i = 0; i < 2000; ++i) {
+        if(i % 2 == 0)
+            id = i * i / 2;
+        else
+            id = i * i / 3;
+        avltree_delete_by_id(avltree, id);
+    }
 
     avltree_clear(avltree);
 }
